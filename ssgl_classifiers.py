@@ -40,7 +40,7 @@ class SSGL_LogisticRegression:
 
     Attributes
     ----------
-    weights_    numpy.ndarray of shape `(dim_input, n_classes)`
+    weights_ :  numpy.ndarray of shape `(dim_input, n_classes)`
         Logistic Regression Weights.
     """
     def __init__(self, dim_input, n_classes, groups, indices_sparse, alpha=0.5, lbda=0.01, n_iter=500, batch_size=256,
@@ -81,7 +81,7 @@ class SSGL_LogisticRegression:
             Training samples.
         y   array-like, shape=(n_samples, n_classes)
             Training labels (formatted as a binary matrix, as returned by a standard One Hot Encoder, see
-            http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details.
+            http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details).
         """
         assert y.shape[1] == self.n_classes and y.shape[0] == X.shape[0]
         self.model.fit(X, y, epochs=self.n_iter, batch_size=self.batch_size, verbose=self.verbose)
@@ -98,7 +98,7 @@ class SSGL_LogisticRegression:
             Training samples.
         y   array-like, shape=(n_samples, n_classes)
             Training labels (formatted as a binary matrix, as returned by a standard One Hot Encoder, see
-            http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details.
+            http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details).
         Returns
         -------
         labels : array, shape=(n_samples,)
