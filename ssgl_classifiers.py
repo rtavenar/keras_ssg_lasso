@@ -34,14 +34,14 @@ class SSGL_LogisticRegression:
     batch_size : int, default 256
         Size of batches to be used during both training and test.
     optimizer : Keras Optimizer, default "sgd"
-        Optimizer to be used at trining time. See https://keras.io/optimizers/ for more details.
+        Optimizer to be used at training time. See https://keras.io/optimizers/ for more details.
     verbose : int, default 0
         Verbose level to be used for keras model (0: silent, 1: verbose).
 
     Attributes
     ----------
     weights_ : numpy.ndarray of shape `(dim_input, n_classes)`
-        Logistic Regression Weights.
+        Logistic Regression weights.
     """
     def __init__(self, dim_input, n_classes, groups, indices_sparse, alpha=0.5, lbda=0.01, n_iter=500, batch_size=256,
                  optimizer="sgd", verbose=0):
@@ -134,6 +134,72 @@ class SSGL_LogisticRegression:
         """
         probas = self.predict_probas(X)
         return numpy.argmax(probas, axis=1)
+
+
+class SSGL_MLP(SSGL_LogisticRegression):
+    """Semi-Sparse Group Lasso Multi Layer Perceptron classifier.
+
+    Parameters
+    ----------
+    dim_input : int
+        Dimension of the input feature space.
+    n_classes : int
+        Number of classes for the classification problem.
+    hidden_layers : tuple (or list) of ints
+        Number of neurons in the hidden layers.
+    groups : list of numpy arrays
+        List of groups. Each group is defined by a numpy array of shape `(dim_input, )` in which a zero value means
+        the corresponding input dimension is not included in the group and a one value means the corresponding input
+        dimension is part of the group.
+    indices_sparse : array-like
+        numpy array of shape `(dim_input, )` in which a zero value means the corresponding input dimension should not
+        be included in the per-dimension sparsity penalty and a one value means the corresponding input dimension should
+        be included in the per-dimension sparsity penalty.
+    alpha : float in the range [0, 1], default 0.5
+        Relative importance of per-dimension sparsity with respect to group sparsity (parameter :math:`\\alpha` in the
+        optimization problem above).
+    lbda : float, default 0.01
+        Regularization parameter (parameter :math:`\\lambda` in the optimization problem above).
+    n_iter : int, default 500
+        Number of training epochs for the gradient descent.
+    batch_size : int, default 256
+        Size of batches to be used during both training and test.
+    optimizer : Keras Optimizer, default "sgd"
+        Optimizer to be used at training time. See https://keras.io/optimizers/ for more details.
+    activation : Keras Activation function, default "relu"
+        Activation function to be used for hidden layers. See https://keras.io/activations/ for more details.
+    verbose : int, default 0
+        Verbose level to be used for keras model (0: silent, 1: verbose).
+
+    Attributes
+    ----------
+    weights_ : list of arrays
+        MLP weights.
+    """
+    def __init__(self, dim_input, n_classes, hidden_layers, groups, indices_sparse, alpha=0.5, lbda=0.01, n_iter=500,
+                 batch_size=256, optimizer="sgd", activation="relu", verbose=0):
+        self.hidden_layers = list(hidden_layers)
+        self.activation = activation
+        if len(self.hidden_layers) == 0:
+            raise ValueError("No hidden layer given, you should use SSGL_LogisticRegression class instead")
+        SSGL_LogisticRegression.__init__(self, dim_input=dim_input, n_classes=n_classes, groups=groups,
+                                         indices_sparse=indices_sparse, alpha=alpha, lbda=lbda, n_iter=n_iter,
+                                         batch_size=batch_size, optimizer=optimizer, verbose=verbose)
+
+    @property
+    def weights_(self):  # TO BE TESTED
+        return self.model.get_weights()[:-1]
+
+    def _init_model(self):
+        self.regularizer = SSGL_WeightRegularizer(l1_reg=self.alpha * self.lbda, indices_sparse=self.indices_sparse,
+                                                  l2_reg=(1. - self.alpha) * self.lbda, groups=self.groups)
+        self.model = Sequential()
+        self.model.add(Dense(units=self.hidden_layers[0], input_dim=self.d, activation=self.activation,
+                             kernel_regularizer=self.regularizer))
+        for n_units in self.hidden_layers[1:]:
+            self.model.add(Dense(units=n_units, activation=self.activation))
+        self.model.add(Dense(units=self.n_classes, activation="softmax"))
+        self.model.compile(loss="categorical_crossentropy", optimizer=self.optimizer)
 
 
 class SSGL_WeightRegularizer(Regularizer):
