@@ -35,8 +35,9 @@ model.fit(X, y)
 beta_hat = model.weights_
 
 for i, (betai_hat, betai) in enumerate(zip(beta_hat, secret_beta)):
-    print("Component %02d: %r | %.4f" % (i, betai_hat, betai))
-print("Correct classification rate: %.3f" % (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
+    print("Component %02d: %r | %.4f" % (i, numpy.linalg.norm(betai_hat), betai))
+print("Correct classification rate of Logistic Regression model: %.3f" %
+      (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
 
 model = SSGL_MLP(dim_input=d, n_classes=2, hidden_layers=(10, 5), groups=groups, indices_sparse=ind_sparse, n_iter=1000,
                  alpha=alpha, lbda=lbda)
@@ -46,4 +47,4 @@ beta_hat = model.weights_[0]
 
 for i, (betai_hat, betai) in enumerate(zip(beta_hat, secret_beta)):
     print("Component %02d: %r | %.4f" % (i, numpy.linalg.norm(betai_hat), betai))
-print("Correct classification rate: %.3f" % (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
+print("Correct classification rate of MLP model: %.3f" % (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
