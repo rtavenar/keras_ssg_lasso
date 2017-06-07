@@ -48,6 +48,8 @@ class SSGL_LogisticRegression:
     ----------
     weights_ : numpy.ndarray of shape `(dim_input, n_classes)`
         Logistic Regression weights.
+    biases_ : numpy.ndarray of shape `(n_classes, )`
+        Logistic Regression biases.
     """
     def __init__(self, dim_input, n_classes, groups, indices_sparse, alpha=0.5, lbda=0.01, n_iter=500, batch_size=256,
                  optimizer="sgd", verbose=0):
@@ -66,9 +68,16 @@ class SSGL_LogisticRegression:
         self.regularizer = None
         self._init_model()
 
+    def __str__(self):
+        return self.model.summary()
+
     @property
     def weights_(self):
         return self.model.get_weights()[0]
+
+    @property
+    def biases_(self):
+        return self.model.get_weights()[1]
 
     def _init_model(self):
         self.regularizer = SSGL_WeightRegularizer(l1_reg=self.alpha * self.lbda, indices_sparse=self.indices_sparse,
@@ -142,7 +151,7 @@ class SSGL_LogisticRegression:
         return numpy.argmax(probas, axis=1)
 
 
-class SSGL_MLP(SSGL_LogisticRegression):
+class SSGL_MultiLayerPerceptron(SSGL_LogisticRegression):
     """Semi-Sparse Group Lasso Multi Layer Perceptron classifier.
 
     Parameters
@@ -180,7 +189,9 @@ class SSGL_MLP(SSGL_LogisticRegression):
     Attributes
     ----------
     weights_ : list of arrays
-        MLP weights.
+        Multi Layer Perceptron weights.
+    biases_ : list of arrays
+        Multi Layer Perceptron biases.
     """
     def __init__(self, dim_input, n_classes, hidden_layers, groups, indices_sparse, alpha=0.5, lbda=0.01, n_iter=500,
                  batch_size=256, optimizer="sgd", activation="relu", verbose=0):
@@ -193,8 +204,12 @@ class SSGL_MLP(SSGL_LogisticRegression):
                                          batch_size=batch_size, optimizer=optimizer, verbose=verbose)
 
     @property
-    def weights_(self):  # TO BE TESTED
-        return self.model.get_weights()[:-1]
+    def weights_(self):
+        return self.model.get_weights()[::2]
+
+    @property
+    def biases_(self):
+        return self.model.get_weights()[1::2]
 
     def _init_model(self):
         self.regularizer = SSGL_WeightRegularizer(l1_reg=self.alpha * self.lbda, indices_sparse=self.indices_sparse,

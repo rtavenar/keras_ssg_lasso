@@ -1,6 +1,6 @@
 import numpy
 
-from ssgl_classifiers import SSGL_LogisticRegression, SSGL_MLP
+from ssgl_classifiers import SSGL_LogisticRegression, SSGL_MultiLayerPerceptron
 
 __author__ = 'Romain Tavenard romain.tavenard[at]univ-rennes2.fr'
 
@@ -39,8 +39,8 @@ for i, (betai_hat, betai) in enumerate(zip(beta_hat, secret_beta)):
 print("Correct classification rate of Logistic Regression model: %.3f" %
       (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
 
-model = SSGL_MLP(dim_input=d, n_classes=2, hidden_layers=(10, 5), groups=groups, indices_sparse=ind_sparse, n_iter=1000,
-                 alpha=alpha, lbda=lbda)
+model = SSGL_MultiLayerPerceptron(dim_input=d, n_classes=2, hidden_layers=(10, 5), groups=groups,
+                                  indices_sparse=ind_sparse, n_iter=1000, alpha=alpha, lbda=lbda)
 
 model.fit(X, y)
 beta_hat = model.weights_[0]
@@ -48,3 +48,6 @@ beta_hat = model.weights_[0]
 for i, (betai_hat, betai) in enumerate(zip(beta_hat, secret_beta)):
     print("Component %02d: %r | %.4f" % (i, numpy.linalg.norm(betai_hat), betai))
 print("Correct classification rate of MLP model: %.3f" % (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
+
+print([w.shape for w in model.weights_])
+print([b.shape for b in model.biases_])
