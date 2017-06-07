@@ -77,9 +77,9 @@ class SSGL_LogisticRegression:
 
         Parameters
         ----------
-        X : array-like, shape=(n_samples, dim_input)
+        X   array-like, shape=(n_samples, dim_input)
             Training samples.
-        y : array-like, shape=(n_samples, n_classes)
+        y   array-like, shape=(n_samples, n_classes)
             Training labels (formatted as a binary matrix, as returned by a standard One Hot Encoder, see
             http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details.
         """
@@ -94,9 +94,9 @@ class SSGL_LogisticRegression:
 
         Parameters
         ----------
-        X : array-like, shape=(n_samples, dim_input)
+        X   array-like, shape=(n_samples, dim_input)
             Training samples.
-        y : array-like, shape=(n_samples, n_classes)
+        y   array-like, shape=(n_samples, n_classes)
             Training labels (formatted as a binary matrix, as returned by a standard One Hot Encoder, see
             http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details.
         Returns
@@ -125,11 +125,11 @@ class SSGL_LogisticRegression:
 
         Parameters
         ----------
-        X : array-like, shape=(n_samples, dim_input)
+        X   array-like, shape=(n_samples, dim_input)
             Samples to predict.
         Returns
         -------
-        labels : array, shape=(n_samples,)
+        labels  array, shape=(n_samples,)
             Array of class indices.
         """
         probas = self.predict_probas(X)
