@@ -12,35 +12,35 @@ class SSGL_LogisticRegression:
 
     Parameters
     ----------
-    dim_input   int
+    dim_input : int
         Dimension of the input feature space.
-    n_classes   int
+    n_classes : int
         Number of classes for the classification problem.
-    groups  list of numpy arrays
+    groups : list of numpy arrays
         List of groups. Each group is defined by a numpy array of shape `(dim_input, )` in which a zero value means
         the corresponding input dimension is not included in the group and a one value means the corresponding input
         dimension is part of the group.
-    indices_sparse  array-like
+    indices_sparse : array-like
         numpy array of shape `(dim_input, )` in which a zero value means the corresponding input dimension should not
         be included in the per-dimension sparsity penalty and a one value means the corresponding input dimension should
         be included in the per-dimension sparsity penalty.
-    alpha   float in the range [0, 1], default 0.5
-        Relative importance of per-dimension sparsity with respect to group sparsity (parameter :math:`\\alpha`` in the
+    alpha : float in the range [0, 1], default 0.5
+        Relative importance of per-dimension sparsity with respect to group sparsity (parameter :math:`\\alpha` in the
         optimization problem above).
-    lbda    float, default 0.01
-        Regularization parameter (parameter :math:`\\lambda`` in the optimization problem above).
-    n_iter  int, default 500
+    lbda : float, default 0.01
+        Regularization parameter (parameter :math:`\\lambda` in the optimization problem above).
+    n_iter : int, default 500
         Number of training epochs for the gradient descent.
-    batch_size  int, default 256
+    batch_size : int, default 256
         Size of batches to be used during both training and test.
-    optimizer   Keras Optimizer, default "sgd"
+    optimizer : Keras Optimizer, default "sgd"
         Optimizer to be used at trining time. See https://keras.io/optimizers/ for more details.
-    verbose int, default 0
+    verbose : int, default 0
         Verbose level to be used for keras model (0: silent, 1: verbose).
 
     Attributes
     ----------
-    weights_ :  numpy.ndarray of shape `(dim_input, n_classes)`
+    weights_ : numpy.ndarray of shape `(dim_input, n_classes)`
         Logistic Regression Weights.
     """
     def __init__(self, dim_input, n_classes, groups, indices_sparse, alpha=0.5, lbda=0.01, n_iter=500, batch_size=256,
@@ -77,9 +77,9 @@ class SSGL_LogisticRegression:
 
         Parameters
         ----------
-        X   array-like, shape=(n_samples, dim_input)
+        X : array-like, shape=(n_samples, dim_input)
             Training samples.
-        y   array-like, shape=(n_samples, n_classes)
+        y : array-like, shape=(n_samples, n_classes)
             Training labels (formatted as a binary matrix, as returned by a standard One Hot Encoder, see
             http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details).
         """
@@ -94,9 +94,9 @@ class SSGL_LogisticRegression:
 
         Parameters
         ----------
-        X   array-like, shape=(n_samples, dim_input)
+        X : array-like, shape=(n_samples, dim_input)
             Training samples.
-        y   array-like, shape=(n_samples, n_classes)
+        y : array-like, shape=(n_samples, n_classes)
             Training labels (formatted as a binary matrix, as returned by a standard One Hot Encoder, see
             http://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.OneHotEncoder.html for more details).
         Returns
@@ -125,11 +125,11 @@ class SSGL_LogisticRegression:
 
         Parameters
         ----------
-        X   array-like, shape=(n_samples, dim_input)
+        X : array-like, shape=(n_samples, dim_input)
             Samples to predict.
         Returns
         -------
-        labels  array, shape=(n_samples,)
+        labels : array, shape=(n_samples,)
             Array of class indices.
         """
         probas = self.predict_probas(X)
@@ -141,15 +141,15 @@ class SSGL_WeightRegularizer(Regularizer):
 
     Parameters
     ----------
-    l1_reg  float, default 0.
+    l1_reg : float, default 0.
         Per-dimension sparsity penalty parameter.
-    l2_reg  float, default 0.
+    l2_reg : float, default 0.
         Group sparsity penalty parameter.
-    groups  list of numpy arrays or None, default None.
+    groups : list of numpy arrays or None, default None.
         List of groups. Each group is defined by a numpy array of shape `(dim_input, )` in which a zero value means
         the corresponding input dimension is not included in the group and a one value means the corresponding input
         dimension is part of the group. None means no group sparsity penalty.
-    indices_sparse  array-like or None, default None.
+    indices_sparse : array-like or None, default None.
         numpy array of shape `(dim_input, )` in which a zero value means the corresponding input dimension should not
         be included in the per-dimension sparsity penalty and a one value means the corresponding input dimension should
         be included in the per-dimension sparsity penalty. None means no per-dimension sparsity penalty.
