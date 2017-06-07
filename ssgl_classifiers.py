@@ -10,6 +10,12 @@ __author__ = 'Romain Tavenard romain.tavenard[at]univ-rennes2.fr'
 class SSGL_LogisticRegression:
     """Semi-Sparse Group Lasso Logistic Regression classifier.
 
+    The loss function to minimize is:
+
+    :math:`L(X, y, \\beta) + (1 - \\alpha)\\lambda\\sum_{l=1}^m \\sqrt{p_l}\\|\\beta^l\\|_2 + \\alpha \\lambda \\|\\beta\\|_1`
+
+    where :math:`L` is the logistic loss and :math:`p_l` is the number of variables in group :math:`l`.
+
     Parameters
     ----------
     dim_input : int
