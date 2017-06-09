@@ -12,7 +12,7 @@ gr0[:d//2] = 1
 gr1 = 1 - gr0
 groups.append(gr0)
 groups.append(gr1)
-alpha = 0.
+alpha = 0.5
 lbda = .1
 
 X = numpy.random.randn(n, d)
@@ -49,5 +49,8 @@ for i, (betai_hat, betai) in enumerate(zip(beta_hat, secret_beta)):
     print("Component %02d: %r | %.4f" % (i, numpy.linalg.norm(betai_hat), betai))
 print("Correct classification rate of MLP model: %.3f" % (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
 
-print([w.shape for w in model.weights_])
-print([b.shape for b in model.biases_])
+print("Weight shapes:", [w.shape for w in model.weights_])
+print("Bias shapes:  ", [b.shape for b in model.biases_])
+
+del model
+
