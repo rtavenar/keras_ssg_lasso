@@ -3,5 +3,4 @@
 
 .. automodule:: ssgl_classifiers
     :members:
-    :undoc-members:
     :show-inheritance:

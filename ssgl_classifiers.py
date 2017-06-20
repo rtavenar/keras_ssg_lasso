@@ -7,6 +7,35 @@ import numpy
 __author__ = 'Romain Tavenard romain.tavenard[at]univ-rennes2.fr'
 
 
+def prepare_groups(group_labels):
+    """Transform a vector of group indicators into an adequate group structure to be passed to a SSGL model.
+
+    Parameters
+    ----------
+    group_labels: array-like of shape (n_variables,)
+        Vector of group ids in which negative value means the variable does not belong to any group.
+
+    Returns
+    -------
+    list of n_groups 0/1 arrays
+        SSGL-ready groups
+
+    Example
+    -------
+    >>> prepare_groups([0, 1, 1, 0, -1, 2, 2, 2, -1])  # doctest: +NORMALIZE_WHITESPACE
+    [array([ 1.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.]), \
+    array([ 0.,  1.,  1.,  0.,  0.,  0.,  0.,  0.,  0.]), \
+    array([ 0.,  0.,  0.,  0.,  0.,  1.,  1.,  1.,  0.])]
+    """
+    group_labels = numpy.array(group_labels)
+    lst_grp = []
+    for i in sorted(list(set(group_labels))):
+        if i >= 0:
+            lst_grp.append((group_labels == i).astype(numpy.float))
+    return lst_grp
+
+
+
 class SSGL_LogisticRegression:
     """Semi-Sparse Group Lasso Logistic Regression classifier.
 
