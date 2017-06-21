@@ -24,26 +24,26 @@ y = numpy.ones((n, 2), dtype=numpy.int32)
 y[numpy.exp(numpy.dot(X, secret_beta)) < 1., 0] = 0
 y[:, 1] = 1 - y[:, 0]
 
-model = SSGL_LogisticRegression(dim_input=d, n_classes=2, groups=groups_formatted, indices_sparse=ind_sparse, n_iter=1000,
-                                alpha=alpha, lbda=lbda, optimizer="rmsprop")
+model = SSGL_LogisticRegression(dim_input=d, n_classes=2, groups=groups_formatted, indices_sparse=ind_sparse,
+                                n_iter=1000, alpha=alpha, lbda=lbda, optimizer="rmsprop", verbose=False)
 
 model.fit(X, y)
 beta_hat = model.weights_
 
 for i, (betai_hat, betai) in enumerate(zip(beta_hat, secret_beta)):
     print("Component %02d: %r | %.4f" % (i, numpy.linalg.norm(betai_hat), betai))
-print("Correct classification rate of Logistic Regression model: %.3f" %
-      (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
+print("Correct classification rate of Logistic Regression model: %.3f" % model.evaluate(X, y)[1])
 
 model = SSGL_MultiLayerPerceptron(dim_input=d, n_classes=2, hidden_layers=(10, 5), groups=groups_formatted,
-                                  indices_sparse=ind_sparse, n_iter=1000, alpha=alpha, lbda=lbda)
+                                  indices_sparse=ind_sparse, n_iter=1000, alpha=alpha, lbda=lbda, optimizer="rmsprop",
+                                  verbose=False)
 
 model.fit(X, y)
 beta_hat = model.weights_[0]
 
 for i, (betai_hat, betai) in enumerate(zip(beta_hat, secret_beta)):
     print("Component %02d: %r | %.4f" % (i, numpy.linalg.norm(betai_hat), betai))
-print("Correct classification rate of MLP model: %.3f" % (numpy.sum(model.predict(X) == numpy.argmax(y, axis=1)) / n))
+print("Correct classification rate of MLP model: %.3f" % model.evaluate(X, y)[1])
 
 print("Weight shapes:", [w.shape for w in model.weights_])
 print("Bias shapes:  ", [b.shape for b in model.biases_])

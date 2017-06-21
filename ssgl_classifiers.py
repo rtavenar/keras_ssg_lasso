@@ -2,6 +2,7 @@ from keras.models import Sequential
 from keras.layers import Dense
 from keras.regularizers import Regularizer
 from keras import backend as K
+from keras.metrics import categorical_accuracy
 import numpy
 
 __author__ = 'Romain Tavenard romain.tavenard[at]univ-rennes2.fr'
@@ -114,7 +115,7 @@ class SSGL_LogisticRegression:
         self.model = Sequential()
         self.model.add(Dense(units=self.n_classes, input_dim=self.d, activation="softmax",
                              kernel_regularizer=self.regularizer))
-        self.model.compile(loss="categorical_crossentropy", optimizer=self.optimizer)
+        self.model.compile(loss="categorical_crossentropy", optimizer=self.optimizer, metrics=[categorical_accuracy])
 
     def fit(self, X, y):
         """Learn Logistic Regression weights.
@@ -178,6 +179,9 @@ class SSGL_LogisticRegression:
         """
         probas = self.predict_probas(X)
         return numpy.argmax(probas, axis=1)
+
+    def evaluate(self, X, y):
+        return self.model.evaluate(X, y, verbose=self.verbose)
 
 
 class SSGL_MultiLayerPerceptron(SSGL_LogisticRegression):
@@ -249,7 +253,10 @@ class SSGL_MultiLayerPerceptron(SSGL_LogisticRegression):
         for n_units in self.hidden_layers[1:]:
             self.model.add(Dense(units=n_units, activation=self.activation))
         self.model.add(Dense(units=self.n_classes, activation="softmax"))
-        self.model.compile(loss="categorical_crossentropy", optimizer=self.optimizer)
+        self.model.compile(loss="categorical_crossentropy", optimizer=self.optimizer, metrics=[categorical_accuracy])
+
+    def evaluate(self, X, y):
+        return SSGL_LogisticRegression.evaluate(self, X, y)
 
 
 class SSGL_WeightRegularizer(Regularizer):
