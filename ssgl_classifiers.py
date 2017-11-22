@@ -4,37 +4,9 @@ from keras.regularizers import Regularizer
 from keras import backend as K
 from keras.metrics import categorical_accuracy
 import numpy
+import tensorflow as tf
 
 __author__ = 'Romain Tavenard romain.tavenard[at]univ-rennes2.fr'
-
-
-def prepare_groups(group_labels):
-    """Transform a vector of group indicators into an adequate group structure to be passed to a SSGL model.
-
-    Parameters
-    ----------
-    group_labels: array-like of shape (n_variables,)
-        Vector of group ids in which negative value means the variable does not belong to any group.
-
-    Returns
-    -------
-    list of n_groups 0/1 arrays
-        SSGL-ready groups
-
-    Example
-    -------
-    >>> prepare_groups([0, 1, 1, 0, -1, 2, 2, 2, -1])  # doctest: +NORMALIZE_WHITESPACE
-    [array([ 1.,  0.,  0.,  1.,  0.,  0.,  0.,  0.,  0.]), \
-    array([ 0.,  1.,  1.,  0.,  0.,  0.,  0.,  0.,  0.]), \
-    array([ 0.,  0.,  0.,  0.,  0.,  1.,  1.,  1.,  0.])]
-    """
-    group_labels = numpy.array(group_labels)
-    lst_grp = []
-    for i in sorted(list(set(group_labels))):
-        if i >= 0:
-            lst_grp.append((group_labels == i).astype(numpy.float))
-    return lst_grp
-
 
 
 class SSGL_LogisticRegression:
@@ -53,9 +25,8 @@ class SSGL_LogisticRegression:
     n_classes : int
         Number of classes for the classification problem.
     groups : list of numpy arrays
-        List of groups. Each group is defined by a numpy array of shape `(dim_input, )` in which a zero value means
-        the corresponding input dimension is not included in the group and a one value means the corresponding input
-        dimension is part of the group.
+        Affiliation of input dimensions to groups. numpy array of shape `(dim_input, )`. Each group is defined by an integer,
+        each input dimension is attributed to a group.
     indices_sparse : array-like
         numpy array of shape `(dim_input, )` in which a zero value means the corresponding input dimension should not
         be included in the per-dimension sparsity penalty and a one value means the corresponding input dimension should
@@ -281,9 +252,10 @@ class SSGL_WeightRegularizer(Regularizer):
         self.l1_reg = l1_reg
         self.l2_reg = l2_reg
         if groups is None:
-            self.groups = []
+            self.groups = None
         else:
-            self.groups = [K.variable(gr.reshape((1, -1))) for gr in groups]
+            groups = numpy.array(groups).astype('int32')
+            self.groups = K.variable(groups, 'int32')
         if indices_sparse is not None:
             self.indices_sparse = K.variable(indices_sparse.reshape((1, -1)))
 
@@ -291,8 +263,8 @@ class SSGL_WeightRegularizer(Regularizer):
         loss = 0.
         if self.indices_sparse is not None:
             loss += K.sum(K.dot(self.indices_sparse, K.abs(x))) * self.l1_reg
-        for gr in self.groups:
-            loss += K.sum(K.dot(gr, K.square(x))) * self.l2_reg
+        if self.groups is not None:
+            loss += K.sum(tf.segment_sum(K.square(x), self.groups) * self.l2_reg)
         return loss
 
     def get_config(self):
