@@ -242,7 +242,8 @@ class SSGL_WeightRegularizer(Regularizer):
     groups : list of numpy arrays or None, default None.
         List of groups. Each group is defined by a numpy array of shape `(dim_input, )` in which a zero value means
         the corresponding input dimension is not included in the group and a one value means the corresponding input
-        dimension is part of the group. None means no group sparsity penalty.
+        dimension is part of the group. None means no group sparsity penalty
+        groups numbering must starts at 0 with a continuous increment of 1 ([0,1,2,3...]). Features of the same group must be contiguous.
     indices_sparse : array-like or None, default None.
         numpy array of shape `(dim_input, )` in which a zero value means the corresponding input dimension should not
         be included in the per-dimension sparsity penalty and a one value means the corresponding input dimension should
@@ -255,6 +256,7 @@ class SSGL_WeightRegularizer(Regularizer):
             self.groups = None
         else:
             groups = numpy.array(groups).astype('int32')
+            self.p_l = K.variable(numpy.sqrt(numpy.bincount(groups)).reshape((1, -1)))
             self.groups = K.variable(groups, 'int32')
         if indices_sparse is not None:
             self.indices_sparse = K.variable(indices_sparse.reshape((1, -1)))
@@ -264,7 +266,7 @@ class SSGL_WeightRegularizer(Regularizer):
         if self.indices_sparse is not None:
             loss += K.sum(K.dot(self.indices_sparse, K.abs(x))) * self.l1_reg
         if self.groups is not None:
-            loss += K.sum(tf.segment_sum(K.square(x), self.groups) * self.l2_reg)
+            loss += K.sum(K.dot(self.p_l, K.sqrt(tf.segment_sum(K.square(x), self.groups)))) * self.l2_reg
         return loss
 
     def get_config(self):
