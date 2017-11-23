@@ -32,17 +32,23 @@ def transform_dataset(time_series, shapelets):
 
 
 shapelet_size_ratio = 0.1
+output_folder = "/Volumes/DATA/features/"
 
-for dataset_name in UCR_UEA_datasets().list_datasets():
+do_not_process = True
+for dataset_name in UCR_UEA_datasets(use_cache=False).list_datasets():
+    if dataset_name == "NonInvasiveFetalECGThorax2":
+        do_not_process = False
+    if do_not_process:
+        continue
     X_train, y_train, X_test, y_test = UCR_UEA_datasets().load_dataset(dataset_name)
     if X_train is None or X_test is None:
         print("Skipping dataset %s: invalid files" % dataset_name)
         continue
     n_ts, sz, d = X_train.shape
     shapelets = load_timeseries_txt("shapelets/%s_%s.txt" % (dataset_name, str(shapelet_size_ratio)))
-    numpy.savetxt("features/%s_%s_TRAIN.txt" % (dataset_name, str(shapelet_size_ratio)),
+    numpy.savetxt("%s/%s_%s_TRAIN.txt" % (output_folder, dataset_name, str(shapelet_size_ratio)),
                   transform_dataset(X_train, shapelets))
-    numpy.savetxt("features/%s_%s_TEST.txt" % (dataset_name, str(shapelet_size_ratio)),
+    numpy.savetxt("%s/%s_%s_TEST.txt" % (output_folder, dataset_name, str(shapelet_size_ratio)),
                   transform_dataset(X_test, shapelets))
     print("Wrote files for dataset %s" % dataset_name)
 

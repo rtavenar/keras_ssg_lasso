@@ -98,3 +98,4 @@ ENV/
 # Own stuff
 .idea/
 xp/shapelets
+xp/features
